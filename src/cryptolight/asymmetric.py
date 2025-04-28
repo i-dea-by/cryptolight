@@ -45,17 +45,19 @@ def deserialize_public_pem(data: bytes):
     return serialization.load_pem_public_key(data, backend=default_backend())
 
 
-def load_public_key(path: PathLike) -> PublicKeyTypes:
+def load_public_key(path: PathLike) -> RSAPublicKey:
     """Загружает из файла публичный ключ
     :param path: путь к файлу
     :return: экземпляр публичного ключа
     """
     with open(path, "rb") as key_file:
         public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
-        return public_key
+        if isinstance(public_key, RSAPublicKey):
+            return public_key
+    raise TypeError(f"Wrong key type, wait 'RSAPublicKey', got: {type(public_key)}")
 
 
-def load_private_key(path: PathLike, password: bytes | None = None) -> PrivateKeyTypes:
+def load_private_key(path: PathLike, password: bytes | None = None) -> RSAPrivateKey:
     """Загружает из файла приватный ключ. Если необходимо можно указать пароль
     :param path: путь к файлу
     :param password: пароль, если необходим
@@ -65,7 +67,9 @@ def load_private_key(path: PathLike, password: bytes | None = None) -> PrivateKe
         private_key = serialization.load_pem_private_key(
             key_file.read(), password=None if password is None else password
         )
-        return private_key
+        if isinstance(private_key, RSAPrivateKey):
+            return private_key
+    raise TypeError(f"Wrong key type, wait 'RSAPrivateKey', got: {type(private_key)}")
 
 
 def _store_key(
