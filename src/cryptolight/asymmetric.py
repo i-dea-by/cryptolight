@@ -5,7 +5,7 @@ https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
 """
 
 from pathlib import Path
-from typing import TypeVar
+from typing import NamedTuple, TypeVar
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
@@ -31,6 +31,14 @@ __all__ = (
     "decrypt_message",
     "generate_keys",
 )
+
+PUBLIC_EXPONENT = 65537
+KEY_SIZE = 2048
+
+
+class RSAKeysPair(NamedTuple):
+    public_key: RSAPublicKey
+    private_key: RSAPrivateKey
 
 
 def deserialize_public_pem(data: bytes):
@@ -198,13 +206,13 @@ def decrypt_message(ciphertext: bytes, private_key: RSAPrivateKey) -> bytes:
     return plaintext
 
 
-def generate_keys() -> tuple[RSAPrivateKey, RSAPublicKey]:
+def generate_keys(exponent: int = PUBLIC_EXPONENT, key_size: int = KEY_SIZE) -> RSAKeysPair:
     """Генерирует приватный и публичный ключи
     :return: кортеж из приватного и публичного ключа
     """
     private_key = rsa.generate_private_key(
-        public_exponent=65537, key_size=2048, backend=default_backend()
+        public_exponent=exponent, key_size=key_size, backend=default_backend()
     )
     public_key = private_key.public_key()
 
-    return private_key, public_key
+    return RSAKeysPair(private_key=private_key, public_key=public_key)
