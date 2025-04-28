@@ -41,7 +41,7 @@ class RSAKeysPair(NamedTuple):
     private_key: RSAPrivateKey
 
 
-def deserialize_public_pem(data: bytes):
+def deserialize_public_pem(data: bytes) -> PublicKeyTypes:
     return serialization.load_pem_public_key(data, backend=default_backend())
 
 
